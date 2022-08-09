@@ -14,6 +14,26 @@ public class Knight extends Piece {
         }
     }
 
+    @Override
+    public boolean canMove(Player player, Piece[][] board) {
+        placesToMoveTo = new boolean[8][8];
+        placesToMoveTo = checkPlaces(player, board, 1, 2, placesToMoveTo, false);
+        placesToMoveTo = checkPlaces(player, board, 1, -2, placesToMoveTo, false);
+        placesToMoveTo = checkPlaces(player, board, -1, 2, placesToMoveTo, false);
+        placesToMoveTo = checkPlaces(player, board, -1, -2, placesToMoveTo, false);
+        placesToMoveTo = checkPlaces(player, board, 2, 1, placesToMoveTo, false);
+        placesToMoveTo = checkPlaces(player, board, 2, -1, placesToMoveTo, false);
+        placesToMoveTo = checkPlaces(player, board, -2, 1, placesToMoveTo, false);
+        placesToMoveTo = checkPlaces(player, board, -2, -1, placesToMoveTo, false);
+        for (boolean[] places : placesToMoveTo) {
+            for (boolean place : places) {
+                if (place) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
     @Override
     public boolean move(Player player, Piece[][] board, int row, int column) {

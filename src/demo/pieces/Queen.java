@@ -15,6 +15,27 @@ public class Queen extends Piece {
     }
 
     @Override
+    public boolean canMove(Player player, Piece[][] board) {
+        placesToMoveTo = new boolean[8][8];
+        placesToMoveTo = checkPlaces(player, board, 1, 1, placesToMoveTo, true);
+        placesToMoveTo = checkPlaces(player, board, -1, 1, placesToMoveTo, true);
+        placesToMoveTo = checkPlaces(player, board, 1, -1, placesToMoveTo, true);
+        placesToMoveTo = checkPlaces(player, board, -1, -1, placesToMoveTo, true);
+        placesToMoveTo = checkPlaces(player, board, 1, 0, placesToMoveTo, true);
+        placesToMoveTo = checkPlaces(player, board, -1, 0, placesToMoveTo, true);
+        placesToMoveTo = checkPlaces(player, board, 0, 1, placesToMoveTo, true);
+        placesToMoveTo = checkPlaces(player, board, 0, -1, placesToMoveTo, true);
+        for (boolean[] places : placesToMoveTo) {
+            for (boolean place : places) {
+                if (place) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
     public boolean move(Player player, Piece[][] board, int row, int column) {
         int distanceRow = row - currentRow;
         int distanceColumn = column - currentColumn;

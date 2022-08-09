@@ -90,6 +90,10 @@ public class Game {
                 System.out.println("Wrong colour");
                 System.out.println("Try again!");
                 System.out.println();
+            } else if (!currentPiece.canMove(player, board)) {
+                System.out.println("This chess piece can't move");
+                System.out.println("Try again!");
+                System.out.println();
             } else {
                 System.out.println();
                 break;
@@ -142,7 +146,7 @@ public class Game {
             for (int i = 0; i < specialTurnPawns.size();) {
                 pawn = specialTurnPawns.get(i);
                 if (pawn.getColour() != currentPlayer.getColour()) {
-                    pawn.setSpecialPawnMoveUsed(false);
+                    ((Pawn) pawn).setSpecialTurnUsed(false);
                     specialTurnPawns.remove(i);
                 } else {
                     i++;

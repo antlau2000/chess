@@ -8,8 +8,8 @@ public abstract class Piece implements Moving {
     protected char view;
     protected int currentRow;
     protected int currentColumn;
-    protected boolean isSpecialPawnMoveUsed;
     protected int point;
+    protected boolean[][] placesToMoveTo;
 
     public Piece(Colour colour, int currentRow, int currentColumn) {
         this.colour = colour;
@@ -93,6 +93,29 @@ public abstract class Piece implements Moving {
         return true;
     }
 
+    public boolean[][] checkPlaces(Player player, Piece[][] board, int rowPlus, int columnPlus,
+                                   boolean[][] placesToMoveTo, boolean infinity) {
+        int tempRow = currentRow;
+        int tempColumn = currentColumn;
+        do {
+            tempRow += rowPlus;
+            tempColumn += columnPlus;
+            if (tempRow > 7 || tempColumn > 7 || tempRow < 0 || tempColumn < 0) {
+                break;
+            }
+            Piece currentPlace = board[tempRow][tempColumn];
+            if (currentPlace == null) {
+                placesToMoveTo[tempRow][tempColumn] = true;
+            } else {
+                if (currentPlace.getColour() != player.getColour()) {
+                    placesToMoveTo[tempRow][tempColumn] = true;
+                }
+                break;
+            }
+        } while (infinity);
+        return placesToMoveTo;
+    }
+
     public String getName() {
         return name;
     }
@@ -119,14 +142,6 @@ public abstract class Piece implements Moving {
 
     public void setCurrentColumn(int currentColumn) {
         this.currentColumn = currentColumn;
-    }
-
-    public boolean isSpecialPawnMoveUsed() {
-        return isSpecialPawnMoveUsed;
-    }
-
-    public void setSpecialPawnMoveUsed(boolean specialPawnMoveUsed) {
-        this.isSpecialPawnMoveUsed = specialPawnMoveUsed;
     }
 
     public int getPoint() {

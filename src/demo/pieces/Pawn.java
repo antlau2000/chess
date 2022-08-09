@@ -3,6 +3,8 @@ package demo.pieces;
 import demo.Player;
 
 public class Pawn extends Piece {
+    private boolean isSpecialTurnUsed = false;
+    private int rowStartPosition;
 
     public Pawn(Colour colour, int currentRow, int currentColumn) {
         super(colour, currentRow, currentColumn);
@@ -10,9 +12,44 @@ public class Pawn extends Piece {
         point = 1;
         if (colour != Colour.White) {
             view = '\u2659';
+            rowStartPosition = 1;
         } else {
             view = '\u265F';
+            rowStartPosition = 6;
         }
+    }
+
+    @Override
+    public boolean canMove(Player player, Piece[][] board) {
+        placesToMoveTo = new boolean[8][8];
+        boolean canMove = false;
+        int rowPlus = 1;
+        if (colour != Colour.White) {
+            rowPlus = -1;
+        }
+        int tempRow = currentRow + rowPlus;
+        int tempSpecialRow = tempRow + rowPlus;
+        int tempColumnToRight = currentColumn + 1;
+        int tempColumnToLeft = currentColumn - 1;
+
+        if (tempRow >= 0 && tempRow <= 7 && board[tempRow][currentColumn] == null) {
+            placesToMoveTo[tempRow][currentColumn] = true;
+            canMove = true;
+            if (currentRow == rowStartPosition && board[tempSpecialRow][currentColumn] == null) {
+                placesToMoveTo[tempSpecialRow][currentColumn] = true;
+            }
+        }
+        if (tempColumnToRight <= 7 && board[tempRow][tempColumnToRight] != null
+                && board[tempRow][tempColumnToRight].getColour() != colour) {
+            placesToMoveTo[tempRow][tempColumnToRight] = true;
+            canMove = true;
+        }
+        if (tempColumnToLeft >= 0 && board[tempRow][tempColumnToLeft] != null
+                && board[tempRow][tempColumnToLeft].getColour() != colour) {
+            placesToMoveTo[tempRow][tempColumnToLeft] = true;
+            canMove = true;
+        }
+        return canMove;
     }
 
     @Override
@@ -38,7 +75,7 @@ public class Pawn extends Piece {
         if (currentRow == startPositionRow && distanceRow == 2 && distanceColumn == 0 && pieceAtDestination == null
                 && board[rowInFrontOfPiece][column] == null) {
                 movePiece(player, board, row, column);
-                isSpecialPawnMoveUsed = true;
+                isSpecialTurnUsed = true;
         } else if (distanceRow != 1) {
             System.out.println("Illegal move");
             System.out.println();
@@ -50,7 +87,7 @@ public class Pawn extends Piece {
                 movePiece(player, board, row, column);
             } else if (currentRow == rowForAttackingSpecialMove && distanceColumn == 1 && pieceAtDestination == null) {
                 Piece piece = board[currentRow][column];
-                if (piece instanceof Pawn && piece.isSpecialPawnMoveUsed()) {
+                if (piece instanceof Pawn && ((Pawn) piece).isSpecialTurnUsed) {
                     movePieceAndAttackSpecialPawnMove(player, board, row, column);
                 } else {
                     System.out.println("Illegal move");
@@ -64,5 +101,9 @@ public class Pawn extends Piece {
             }
         }
         return true;
+    }
+
+    public void setSpecialTurnUsed(boolean specialTurnUsed) {
+        isSpecialTurnUsed = specialTurnUsed;
     }
 }
