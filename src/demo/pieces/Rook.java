@@ -32,6 +32,14 @@ public class Rook extends Piece {
     }
 
     @Override
+    public void protect(Player player, Piece[][] board) {
+        protectPieces(player, board, 1, 0, true);
+        protectPieces(player, board, -1, 0, true);
+        protectPieces(player, board, 0, 1, true);
+        protectPieces(player, board, 0, -1, true);
+    }
+
+    @Override
     public boolean move(Player player, Piece[][] board, int row, int column) {
         int distanceRow = row - currentRow;
         int distanceColumn = column - currentColumn;

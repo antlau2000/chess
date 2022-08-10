@@ -11,12 +11,23 @@ public class Player {
     private Colour colour;
     private List<Piece> tokenPieces;
     private boolean[][] attackedPlaces;
+    private List<Piece> pieces;
 
     public Player(String name, Colour colour) {
         this.name = name;
         this.colour = colour;
         tokenPieces = new ArrayList<>();
         attackedPlaces = new boolean[8][8];
+        pieces = new ArrayList<>();
+    }
+
+    public void protectPieces(Piece[][] board) {
+        for (Piece piece : pieces) {
+            piece.setProtected(false);
+        }
+        for (Piece piece : pieces) {
+            piece.protect(this, board);
+        }
     }
 
     public Colour getColour() {
@@ -45,5 +56,13 @@ public class Player {
 
     public boolean[][] getAttackedPlaces() {
         return attackedPlaces;
+    }
+
+    public List<Piece> getPieces() {
+        return pieces;
+    }
+
+    public void setPieces(List<Piece> pieces) {
+        this.pieces = pieces;
     }
 }

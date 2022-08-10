@@ -38,6 +38,7 @@ public class Game {
             view.print(players, board);
             currentPiece = choosePiece(scanner, currentPlayer);
             if (movePiece(scanner, currentPlayer, currentPiece)) {
+                currentPlayer.protectPieces(board);
                 if (currentPlayer.getColour() == White) {
                     currentPlayer = playerBlack;
                 } else {
@@ -48,21 +49,33 @@ public class Game {
     }
 
     public static void startGame() {
-        playerWhite = new Player("Anthony", White);
-        playerBlack = new Player("Mixa", Black);
-        players.add(playerWhite);
-        players.add(playerBlack);
         board = initiateBoard();
         boardNotation = initiateBoardNotation();
+        playerWhite = new Player("Anthony", White);
+        playerBlack = new Player("Mixa", Black);
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 8; j++) {
+                playerWhite.getPieces().add(board[i][j]);
+                playerBlack.getPieces().add(board[7 - i][j]);
+            }
+        }
+        players.add(playerWhite);
+        players.add(playerBlack);
     }
 
     public static void startGameWithoutPawns() {
-        playerWhite = new Player("Anthony", White);
-        playerBlack = new Player("Mixa", Black);
-        players.add(playerWhite);
-        players.add(playerBlack);
         board = initiateBoardWithoutPawns();
         boardNotation = initiateBoardNotation();
+        playerWhite = new Player("Anthony", White);
+        playerBlack = new Player("Mixa", Black);
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 8; j++) {
+                playerWhite.getPieces().add(board[i][j]);
+                playerBlack.getPieces().add(board[7 - i][j]);
+            }
+        }
+        players.add(playerWhite);
+        players.add(playerBlack);
     }
 
     // can only select piece that can move

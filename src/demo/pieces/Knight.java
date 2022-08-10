@@ -36,6 +36,18 @@ public class Knight extends Piece {
     }
 
     @Override
+    public void protect(Player player, Piece[][] board) {
+        protectPieces(player, board, 1, 2, false);
+        protectPieces(player, board, 1, -2, false);
+        protectPieces(player, board, -1, 2, false);
+        protectPieces(player, board, -1, -2, false);
+        protectPieces(player, board, 2, 1, false);
+        protectPieces(player, board, 2, -1, false);
+        protectPieces(player, board, -2, 1, false);
+        protectPieces(player, board, -2, -1, false);
+    }
+
+    @Override
     public boolean move(Player player, Piece[][] board, int row, int column) {
         int distanceRow = Math.abs(row - currentRow);
         int distanceColumn = Math.abs(column - currentColumn);

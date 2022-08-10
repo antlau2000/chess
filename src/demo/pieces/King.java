@@ -15,6 +15,16 @@ public class King extends Piece {
     }
 
     @Override
+    public boolean canMove(Player player, Piece[][] board) {
+        return false;
+    }
+
+    @Override
+    public void protect(Player player, Piece[][] board) {
+
+    }
+
+    @Override
     public boolean move(Player player, Piece[][] board, int row, int column) {
         int distanceRow = row - currentRow;
         int distanceColumn = column - currentColumn;

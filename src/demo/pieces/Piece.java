@@ -10,6 +10,7 @@ public abstract class Piece implements Moving {
     protected int currentColumn;
     protected int point;
     protected boolean[][] placesToMoveTo;
+    protected boolean isProtected;
 
     public Piece(Colour colour, int currentRow, int currentColumn) {
         this.colour = colour;
@@ -116,6 +117,27 @@ public abstract class Piece implements Moving {
         return placesToMoveTo;
     }
 
+    public abstract void protect(Player player, Piece[][] board);
+
+    public void protectPieces(Player player, Piece[][] board, int rowPlus, int columnPlus, boolean infinity) {
+        int tempRow = currentRow;
+        int tempColumn = currentColumn;
+        do {
+            tempRow += rowPlus;
+            tempColumn += columnPlus;
+            if (tempRow > 7 || tempColumn > 7 || tempRow < 0 || tempColumn < 0) {
+                break;
+            }
+            Piece currentPiece = board[tempRow][tempColumn];
+            if (currentPiece != null) {
+                if (currentPiece.getColour() == player.getColour()) {
+                    currentPiece.setProtected(true);
+                }
+                break;
+            }
+        } while (infinity);
+    }
+
     public String getName() {
         return name;
     }
@@ -146,5 +168,13 @@ public abstract class Piece implements Moving {
 
     public int getPoint() {
         return point;
+    }
+
+    public boolean isProtected() {
+        return isProtected;
+    }
+
+    public void setProtected(boolean aProtected) {
+        isProtected = aProtected;
     }
 }

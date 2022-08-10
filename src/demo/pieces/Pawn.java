@@ -12,10 +12,10 @@ public class Pawn extends Piece {
         point = 1;
         if (colour != Colour.White) {
             view = '\u2659';
-            rowStartPosition = 1;
+            rowStartPosition = 6;
         } else {
             view = '\u265F';
-            rowStartPosition = 6;
+            rowStartPosition = 1;
         }
     }
 
@@ -50,6 +50,31 @@ public class Pawn extends Piece {
             canMove = true;
         }
         return canMove;
+    }
+
+    @Override
+    public void protect(Player player, Piece[][] board) {
+        int rowPlus = 1;
+        if (colour != Colour.White) {
+            rowPlus = -1;
+        }
+
+        int tempRow = currentRow + rowPlus;
+        int tempColumnToRight = currentColumn + 1;
+        int tempColumnToLeft = currentColumn - 1;
+
+        if (tempColumnToRight <= 7) {
+            Piece pieceToRight = board[tempRow][tempColumnToRight];
+            if (pieceToRight != null && pieceToRight.getColour() == colour) {
+                pieceToRight.setProtected(true);
+            }
+        }
+        if (tempColumnToLeft >= 0) {
+            Piece pieceToLeft = board[tempRow][tempColumnToLeft];
+            if (pieceToLeft != null && pieceToLeft.getColour() == colour) {
+                pieceToLeft.setProtected(true);
+            }
+        }
     }
 
     @Override
