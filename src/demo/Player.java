@@ -30,6 +30,24 @@ public class Player {
         }
     }
 
+    public boolean[][] attackPlaces(Piece[][] board) {
+        attackedPlaces = new boolean[8][8];
+        for (Piece piece : pieces) {
+            piece.canMove(this, board);
+        }
+        for (Piece piece : pieces) {
+            boolean[][] placesToMoveTo = piece.getPlacesToMoveTo();
+            for (int i = 0; i < attackedPlaces.length; i++) {
+                for (int j = 0; j < attackedPlaces[0].length; j++) {
+                    if (placesToMoveTo[i][j]) {
+                        attackedPlaces[i][j] = true;
+                    }
+                }
+            }
+        }
+        return attackedPlaces;
+    }
+
     public Colour getColour() {
         return colour;
     }
@@ -56,6 +74,10 @@ public class Player {
 
     public boolean[][] getAttackedPlaces() {
         return attackedPlaces;
+    }
+
+    public void setAttackedPlaces(boolean[][] attackedPlaces) {
+        this.attackedPlaces = attackedPlaces;
     }
 
     public List<Piece> getPieces() {

@@ -16,12 +16,46 @@ public class King extends Piece {
 
     @Override
     public boolean canMove(Player player, Piece[][] board) {
-        return false;
+        placesToMoveTo = new boolean[8][8];
+        boolean canMove = false;
+        int upRow = currentRow + 1;
+        if (upRow <= 7 && canMoveKing(player, board, upRow, currentColumn)) {
+            canMove = true;
+        }
+        int downRow = currentRow - 1;
+        if (downRow >= 0 && canMoveKing(player, board, downRow, currentColumn)) {
+            canMove = true;
+        }
+        int rightColumn = currentColumn + 1;
+        if (rightColumn <= 7 && canMoveKing(player, board, currentRow, rightColumn)) {
+            canMove = true;
+        }
+        int leftColumn = currentColumn - 1;
+        if (rightColumn >= 0 && canMoveKing(player, board, currentRow, rightColumn)) {
+            canMove = true;
+        }
+        return canMove;
+    }
+
+    public boolean canMoveKing(Player player, Piece[][] board, int row, int column) {
+        Piece piece = board[row][column];
+        boolean canMove = false;
+        if (!player.getAttackedPlaces()[row][column] && piece == null) {
+            placesToMoveTo[row][column] = true;
+            canMove = true;
+        } else if (piece.getColour() != colour && !piece.isProtected()) {
+            placesToMoveTo[row][column] = true;
+            canMove = true;
+        }
+        return canMove;
     }
 
     @Override
     public void protect(Player player, Piece[][] board) {
-
+        protectPieces(player, board, 1, 1, false);
+        protectPieces(player, board, -1, 1, false);
+        protectPieces(player, board, 1, -1, false);
+        protectPieces(player, board, -1, -1, false);
     }
 
     @Override

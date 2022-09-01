@@ -177,4 +177,8 @@ public abstract class Piece implements Moving {
     public void setProtected(boolean aProtected) {
         isProtected = aProtected;
     }
+
+    public boolean[][] getPlacesToMoveTo() {
+        return placesToMoveTo;
+    }
 }

@@ -34,16 +34,19 @@ public class Game {
         }
 //        startGame();
         Player currentPlayer = playerWhite;
+        boolean[][] attackedPlaces;
         while (true) {
             view.print(players, board);
             currentPiece = choosePiece(scanner, currentPlayer);
             if (movePiece(scanner, currentPlayer, currentPiece)) {
                 currentPlayer.protectPieces(board);
+                attackedPlaces = currentPlayer.attackPlaces(board);
                 if (currentPlayer.getColour() == White) {
                     currentPlayer = playerBlack;
                 } else {
                     currentPlayer = playerWhite;
                 }
+                currentPlayer.setAttackedPlaces(attackedPlaces);
             }
         }
     }
