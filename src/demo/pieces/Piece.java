@@ -18,80 +18,36 @@ public abstract class Piece implements Moving {
         this.currentColumn = currentColumn;
     }
 
+    @Override
+    public boolean move(Player player, Piece[][] board, int row, int column) {
+        if (placesToMoveTo[row][column]) {
+            movePiece(player, board, row, column);
+            return true;
+        }
+        return false;
+    }
+
     protected void movePiece(Player player, Piece[][] board, int row, int column) {
         if (board[row][column] != null) {
             player.getTokenPieces().add(board[row][column]);
+        } else if (row == 2) {
+            Piece piece = board[row + 1][column];
+            if (piece instanceof Pawn && ((Pawn) piece).isSpecialTurnUsed()) {
+                player.getTokenPieces().add(piece);
+                board[row + 1][column] = null;
+            }
+        } else if (row == 5) {
+            Piece piece = board[row - 1][column];
+            if (piece instanceof Pawn && ((Pawn) piece).isSpecialTurnUsed()) {
+                player.getTokenPieces().add(piece);
+                board[row - 1][column] = null;
+            }
         }
+
         board[row][column] = this;
         board[currentRow][currentColumn] = null;
         currentRow = row;
         currentColumn = column;
-    }
-
-    protected void movePieceAndAttackSpecialPawnMove(Player player, Piece[][] board, int row, int column) {
-        int rowWithSpecialMovePawn;
-        if (colour == Colour.White) {
-            rowWithSpecialMovePawn = 4;
-        } else {
-            rowWithSpecialMovePawn = 3;
-        }
-        player.getTokenPieces().add(board[rowWithSpecialMovePawn][column]);
-        board[rowWithSpecialMovePawn][column] = null;
-        board[row][column] = this;
-        board[currentRow][currentColumn] = null;
-        currentRow = row;
-        currentColumn = column;
-    }
-
-    protected boolean isPiecesInWay(Piece[][] board, int distance, Direction direction) {
-        Piece tempPiece;
-        int distanceRow = 0;
-        int distanceColumn = 0;
-        boolean finalPlace = true;
-        switch (direction) {
-            case HORIZONTAL:
-                distanceColumn = distance;
-                break;
-            case VERTICAL:
-                distanceRow = distance;
-                break;
-            case RIGHT_UP:
-                distanceRow = distance;
-                distanceColumn = distance;
-                break;
-            case LEFT_UP:
-                distanceRow = distance;
-                distanceColumn = -distance;
-        }
-        while (distance != 0) {
-            tempPiece = board[currentRow + distanceRow][currentColumn + distanceColumn];
-            if (distance < 0) {
-                distance++;
-            } else {
-                distance--;
-            }
-            if (distanceRow != 0) {
-                distanceRow = distance;
-            }
-            if (distanceColumn != 0) {
-                if (direction != Direction.LEFT_UP) {
-                    distanceColumn = distance;
-                } else {
-                    distanceColumn = -distance;
-                }
-            }
-            if (tempPiece == null) {
-                finalPlace = false;
-            } else if (finalPlace && tempPiece.getColour() != colour) {
-                finalPlace = false;
-            } else {
-                System.out.println("Wrong");
-                System.out.println("Try again!");
-                System.out.println();
-                return false;
-            }
-        }
-        return true;
     }
 
     public boolean[][] checkPlaces(Player player, Piece[][] board, int rowPlus, int columnPlus,
@@ -154,16 +110,8 @@ public abstract class Piece implements Moving {
         return currentRow;
     }
 
-    public void setCurrentRow(int currentRow) {
-        this.currentRow = currentRow;
-    }
-
     public int getCurrentColumn() {
         return currentColumn;
-    }
-
-    public void setCurrentColumn(int currentColumn) {
-        this.currentColumn = currentColumn;
     }
 
     public int getPoint() {

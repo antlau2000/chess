@@ -38,26 +38,4 @@ public class Bishop extends Piece {
         protectPieces(player, board, 1, -1, true);
         protectPieces(player, board, -1, -1, true);
     }
-
-    @Override
-    public boolean move(Player player, Piece[][] board, int row, int column) {
-        int distanceRow = row - currentRow;
-        int distanceColumn = column - currentColumn;
-        boolean canMove;
-        if (distanceRow == distanceColumn) {
-            canMove = isPiecesInWay(board, distanceRow, Direction.RIGHT_UP);
-        } else if (distanceRow == -distanceColumn) {
-            canMove = isPiecesInWay(board, distanceRow, Direction.LEFT_UP);
-        } else {
-            System.out.println(name + " don't move that way");
-            System.out.println("Try again!");
-            System.out.println();
-            return false;
-        }
-        if (canMove) {
-            movePiece(player, board, row, column);
-            return true;
-        }
-        return false;
-    }
 }

@@ -2,7 +2,6 @@ package demo.pieces;
 
 import demo.Player;
 
-// TODO Need to make a List<List<>> or Piece[][] with attacked fields to see where King can move
 public class King extends Piece {
     public King(Colour colour, int currentRow, int currentColumn) {
         super(colour, currentRow, currentColumn);
@@ -31,7 +30,7 @@ public class King extends Piece {
             canMove = true;
         }
         int leftColumn = currentColumn - 1;
-        if (rightColumn >= 0 && canMoveKing(player, board, currentRow, rightColumn)) {
+        if (leftColumn >= 0 && canMoveKing(player, board, currentRow, leftColumn)) {
             canMove = true;
         }
         return canMove;
@@ -40,9 +39,11 @@ public class King extends Piece {
     public boolean canMoveKing(Player player, Piece[][] board, int row, int column) {
         Piece piece = board[row][column];
         boolean canMove = false;
-        if (!player.getAttackedPlaces()[row][column] && piece == null) {
-            placesToMoveTo[row][column] = true;
-            canMove = true;
+        if (piece == null) {
+            if (!player.getAttackedPlaces()[row][column]) {
+                placesToMoveTo[row][column] = true;
+                canMove = true;
+            }
         } else if (piece.getColour() != colour && !piece.isProtected()) {
             placesToMoveTo[row][column] = true;
             canMove = true;
@@ -56,27 +57,5 @@ public class King extends Piece {
         protectPieces(player, board, -1, 1, false);
         protectPieces(player, board, 1, -1, false);
         protectPieces(player, board, -1, -1, false);
-    }
-
-    @Override
-    public boolean move(Player player, Piece[][] board, int row, int column) {
-        int distanceRow = row - currentRow;
-        int distanceColumn = column - currentColumn;
-        if (Math.abs(distanceRow) > 1 || Math.abs(distanceColumn) > 1) {
-            System.out.println(name + " don't move that way");
-            System.out.println("Try again!");
-            System.out.println();
-            return false;
-        }
-        Piece piece = board[row][column];
-        if (piece == null || piece.getColour() != colour) {
-            movePiece(player, board, row, column);
-            return true;
-        } else {
-            System.out.println(name + " can't move that way");
-            System.out.println("Try again!");
-            System.out.println();
-            return false;
-        }
     }
 }

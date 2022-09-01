@@ -79,56 +79,21 @@ public class Pawn extends Piece {
 
     @Override
     public boolean move(Player player, Piece[][] board, int row, int column) {
-        int startPositionRow;
-        int distanceRow;
-        int distanceColumn = Math.abs(column - currentColumn);
-        int rowInFrontOfPiece;
-        Piece pieceAtDestination = board[row][column];
-        int rowForAttackingSpecialMove;
-        if (colour == Colour.White) {
-            startPositionRow = 1;
-            distanceRow = row - currentRow;
-            rowInFrontOfPiece = currentRow + 1;
-            rowForAttackingSpecialMove = 4;
-        } else {
-            startPositionRow = 6;
-            distanceRow = currentRow - row;
-            rowInFrontOfPiece = currentRow - 1;
-            rowForAttackingSpecialMove = 3;
-        }
-
-        if (currentRow == startPositionRow && distanceRow == 2 && distanceColumn == 0 && pieceAtDestination == null
-                && board[rowInFrontOfPiece][column] == null) {
-                movePiece(player, board, row, column);
+        if (placesToMoveTo[row][column]) {
+            if (Math.abs(row - currentRow) == 2) {
                 isSpecialTurnUsed = true;
-        } else if (distanceRow != 1) {
-            System.out.println("Illegal move");
-            System.out.println();
-            return false;
-        } else {
-            if (distanceColumn == 0 && pieceAtDestination == null) {
-                movePiece(player, board, row, column);
-            } else if (distanceColumn == 1 && pieceAtDestination != null && pieceAtDestination.getColour() != colour) {
-                movePiece(player, board, row, column);
-            } else if (currentRow == rowForAttackingSpecialMove && distanceColumn == 1 && pieceAtDestination == null) {
-                Piece piece = board[currentRow][column];
-                if (piece instanceof Pawn && ((Pawn) piece).isSpecialTurnUsed) {
-                    movePieceAndAttackSpecialPawnMove(player, board, row, column);
-                } else {
-                    System.out.println("Illegal move");
-                    System.out.println();
-                    return false;
-                }
-            } else {
-                System.out.println("Illegal move");
-                System.out.println();
-                return false;
             }
+            movePiece(player, board, row, column);
+            return true;
         }
-        return true;
+        return false;
     }
 
     public void setSpecialTurnUsed(boolean specialTurnUsed) {
         isSpecialTurnUsed = specialTurnUsed;
+    }
+
+    public boolean isSpecialTurnUsed() {
+        return isSpecialTurnUsed;
     }
 }

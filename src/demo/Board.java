@@ -8,8 +8,4 @@ public class Board {
     public Piece[][] getArray() {
         return array;
     }
-
-    public void setArray(Piece[][] array) {
-        this.array = array;
-    }
 }

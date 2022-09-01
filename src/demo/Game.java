@@ -10,8 +10,6 @@ import java.util.Scanner;
 import static demo.pieces.Colour.White;
 import static demo.pieces.Colour.Black;
 
-// TODO 1) Piece[][] attacked fields
-// TODO 2) Points for pieces
 public class Game {
 
     static Piece[][] board;
@@ -25,14 +23,14 @@ public class Game {
         Scanner scanner = new Scanner(System.in);
         BoardView view = new BoardView();
         Piece currentPiece;
-        System.out.println("0 for test without pawns:");
 
-        if (scanner.nextInt() == 0) {
-            startGameWithoutPawns();
-        } else {
-            startGame();
-        }
-//        startGame();
+//        System.out.println("0 for test without pawns:");
+//        if (scanner.nextInt() == 0) {
+//            startGameWithoutPawns();
+//        } else {
+//            startGame();
+//        }
+        startGame();
         Player currentPlayer = playerWhite;
         boolean[][] attackedPlaces;
         while (true) {
@@ -81,7 +79,6 @@ public class Game {
         players.add(playerBlack);
     }
 
-    // can only select piece that can move
     public static Piece choosePiece(Scanner scanner, Player player) {
         Piece currentPiece = null;
         while (true) {
@@ -119,6 +116,7 @@ public class Game {
     }
 
     public static boolean movePiece(Scanner scanner, Player currentPlayer, Piece currentPiece) {
+        boolean isSpecialTurnUsed = false;
         while (true) {
             System.out.println(currentPlayer.getName() + ", choose a destination for your " + currentPiece.getName() + ":");
             String destination = scanner.next();
@@ -150,7 +148,7 @@ public class Game {
                         if (row == endRow) {
                             transformPawn(scanner, currentPlayer, currentPiece, board);
                         } else if (distanceRow == 2) {
-                            specialTurnPawns.add(currentPiece);
+                            isSpecialTurnUsed = true;
                         }
                     }
                     break;
@@ -168,6 +166,9 @@ public class Game {
                     i++;
                 }
             }
+        }
+        if (isSpecialTurnUsed) {
+            specialTurnPawns.add(currentPiece);
         }
         return true;
     }
