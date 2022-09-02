@@ -33,6 +33,24 @@ public class King extends Piece {
         if (leftColumn >= 0 && canMoveKing(player, board, currentRow, leftColumn)) {
             canMove = true;
         }
+        if (!isUsed && !player.getAttackedPlaces()[currentRow][currentColumn]) {
+            Piece rightRook = board[currentRow][7];
+            Piece leftRook = board[currentRow][0];
+            if (rightRook instanceof Rook && !rightRook.isUsed) {
+                if (board[currentRow][5] == null && board[currentRow][6] == null) {
+                    if (!player.getAttackedPlaces()[currentRow][5] && !player.getAttackedPlaces()[currentRow][6]) {
+                        placesToMoveTo[currentRow][6] = true;
+                    }
+                }
+            }
+            if (leftRook instanceof Rook && !leftRook.isUsed) {
+                if (board[currentRow][1] == null && board[currentRow][2] == null && board[currentRow][3] == null) {
+                    if (!player.getAttackedPlaces()[currentRow][2] && !player.getAttackedPlaces()[currentRow][3]) {
+                        placesToMoveTo[currentRow][2] = true;
+                    }
+                }
+            }
+        }
         return canMove;
     }
 

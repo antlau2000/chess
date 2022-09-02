@@ -11,6 +11,7 @@ public abstract class Piece implements Moving {
     protected int point;
     protected boolean[][] placesToMoveTo;
     protected boolean isProtected;
+    protected boolean isUsed;
 
     public Piece(Colour colour, int currentRow, int currentColumn) {
         this.colour = colour;
@@ -28,6 +29,9 @@ public abstract class Piece implements Moving {
     }
 
     protected void movePiece(Player player, Piece[][] board, int row, int column) {
+        if (!isUsed) {
+            isUsed = true;
+        }
         if (board[row][column] != null) {
             player.getTokenPieces().add(board[row][column]);
         } else if (row == 2) {
@@ -41,6 +45,16 @@ public abstract class Piece implements Moving {
             if (piece instanceof Pawn && ((Pawn) piece).isSpecialTurnUsed()) {
                 player.getTokenPieces().add(piece);
                 board[row - 1][column] = null;
+            }
+        } else if (this instanceof King && Math.abs(column - currentColumn) == 2) {
+            if (column - currentColumn == 2) {
+                board[row][5] = board[row][7];
+                board[row][7] = null;
+                board[row][5].currentColumn = 5;
+            } else {
+                board[row][3] = board[row][0];
+                board[row][0] = null;
+                board[row][3].currentColumn = 3;
             }
         }
 

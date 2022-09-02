@@ -24,13 +24,15 @@ public class Game {
         BoardView view = new BoardView();
         Piece currentPiece;
 
-//        System.out.println("0 for test without pawns:");
-//        if (scanner.nextInt() == 0) {
-//            startGameWithoutPawns();
-//        } else {
-//            startGame();
-//        }
-        startGame();
+        System.out.println("0 for test without pawns:");
+        if (scanner.nextInt() == 0) {
+            startGameWithoutPawns();
+        } else {
+            startGame();
+        }
+
+//        startGame();
+
         Player currentPlayer = playerWhite;
         boolean[][] attackedPlaces;
         while (true) {
@@ -69,7 +71,7 @@ public class Game {
         boardNotation = initiateBoardNotation();
         playerWhite = new Player("Anthony", White);
         playerBlack = new Player("Mixa", Black);
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 1; i++) {
             for (int j = 0; j < 8; j++) {
                 playerWhite.getPieces().add(board[i][j]);
                 playerBlack.getPieces().add(board[7 - i][j]);
