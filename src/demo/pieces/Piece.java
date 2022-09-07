@@ -4,7 +4,7 @@ import demo.Player;
 
 public abstract class Piece implements Moving {
     protected String name;
-    protected demo.pieces.Colour colour;
+    protected Colour colour;
     protected char view;
     protected int currentRow;
     protected int currentColumn;
@@ -20,30 +20,124 @@ public abstract class Piece implements Moving {
     }
 
     @Override
-    public boolean move(Player player, Piece[][] board, int row, int column) {
+    public boolean isPinned(Player player, Piece king, Piece[][] board) {
+        int rowDistance = Math.abs(king.currentRow - currentRow);
+        int columnDistance = Math.abs(king.currentColumn - currentColumn);
+        int reduceRowDistance = -1;
+        int reduceColumnDistance = -1;
+        boolean pieceIsBundledWithKing = true;
+        int checkRow = currentRow;
+        int checkColumn = currentColumn;
+        if (rowDistance == columnDistance || rowDistance == 0 || columnDistance == 0) {
+            if (rowDistance != 1 || columnDistance != 1) {
+                int distance;
+                if (rowDistance == columnDistance) {
+                    distance = rowDistance;
+                    if (king.currentRow - currentRow > 0) {
+                        reduceRowDistance = 1;
+                    }
+                    if (king.currentColumn - currentColumn > 0) {
+                        reduceColumnDistance = 1;
+                    }
+                } else if (rowDistance == 0) {
+                    distance = columnDistance;
+                    reduceRowDistance = 0;
+                    if (king.currentColumn - currentColumn > 0) {
+                        reduceColumnDistance = 1;
+                    }
+                } else {
+                    distance = rowDistance;
+                    reduceColumnDistance = 0;
+                    if (king.currentRow - currentRow > 0) {
+                        reduceRowDistance = 1;
+                    }
+                }
+                for (int i = 0; i < distance - 1; i++) {
+                    checkRow += reduceRowDistance;
+                    checkColumn += reduceColumnDistance;
+                    if (board[checkRow][checkColumn] != null) {
+                        pieceIsBundledWithKing = false;
+                        break;
+                    }
+                }
+            }
+            if (pieceIsBundledWithKing) {
+                int increaseRow = reduceRowDistance * -1;
+                int increaseColumn = reduceColumnDistance * -1;
+                checkRow = currentRow;
+                checkColumn = currentColumn;
+                while (true) {
+                    checkRow += increaseRow;
+                    checkColumn += increaseColumn;
+                    if (checkRow >= 0 && checkRow <= 7 && checkColumn >= 0 && checkColumn <= 7) {
+                        Piece piece = board[checkRow][checkColumn];
+                        if (piece != null) {
+                            if (piece instanceof Queen) {
+                                return true;
+                            } else if (piece instanceof Rook) {
+                                if (rowDistance != columnDistance) {
+                                    return true;
+                                }
+                            } else if (piece instanceof Bishop) {
+                                if (rowDistance == columnDistance) {
+                                    return true;
+                                }
+                            }
+                            break;
+                        }
+                    } else {
+                        break;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean canMoveWhileCheck(Player player, boolean[][] stopCheck, Piece[][] board) {
+        boolean[][] placesToMoveWhileCheck = new boolean[8][8];
+        boolean canMove = false;
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[0].length; j++) {
+                if (stopCheck[i][j] && placesToMoveTo[i][j]) {
+                    placesToMoveWhileCheck[i][j] = true;
+                    canMove = true;
+                }
+            }
+        }
+        placesToMoveTo = placesToMoveWhileCheck;
+        return canMove;
+    }
+
+    @Override
+    public boolean move(Player player, Player opponent, Piece[][] board, int row, int column) {
         if (placesToMoveTo[row][column]) {
-            movePiece(player, board, row, column);
+            movePiece(player, opponent, board, row, column);
             return true;
         }
         return false;
     }
 
-    protected void movePiece(Player player, Piece[][] board, int row, int column) {
+    protected void movePiece(Player player, Player opponent, Piece[][] board, int row, int column) {
         if (!isUsed) {
             isUsed = true;
         }
         if (board[row][column] != null) {
             player.getTokenPieces().add(board[row][column]);
+            opponent.getPieces().remove(board[row][column]);
         } else if (row == 2) {
             Piece piece = board[row + 1][column];
             if (piece instanceof Pawn && ((Pawn) piece).isSpecialTurnUsed()) {
                 player.getTokenPieces().add(piece);
+                opponent.getPieces().remove(board[row + 1][column]);
                 board[row + 1][column] = null;
             }
         } else if (row == 5) {
             Piece piece = board[row - 1][column];
             if (piece instanceof Pawn && ((Pawn) piece).isSpecialTurnUsed()) {
                 player.getTokenPieces().add(piece);
+                opponent.getPieces().remove(board[row - 1][column]);
                 board[row - 1][column] = null;
             }
         } else if (this instanceof King && Math.abs(column - currentColumn) == 2) {
@@ -136,8 +230,8 @@ public abstract class Piece implements Moving {
         return isProtected;
     }
 
-    public void setProtected(boolean aProtected) {
-        isProtected = aProtected;
+    public void setProtected(boolean isProtected) {
+        this.isProtected = isProtected;
     }
 
     public boolean[][] getPlacesToMoveTo() {

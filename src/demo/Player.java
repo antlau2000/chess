@@ -30,10 +30,10 @@ public class Player {
         }
     }
 
-    public boolean[][] attackPlaces(Piece[][] board) {
+    public boolean[][] attackPlaces(Piece king, Piece[][] board) {
         attackedPlaces = new boolean[8][8];
         for (Piece piece : pieces) {
-            piece.canMove(this, board);
+            piece.canMove(this, king, board);
         }
         for (Piece piece : pieces) {
             boolean[][] placesToMoveTo = piece.getPlacesToMoveTo();
@@ -46,6 +46,15 @@ public class Player {
             }
         }
         return attackedPlaces;
+    }
+
+    public Piece getAttacker(int kingRow, int kingColumn) {
+        for (Piece piece : pieces) {
+            if (piece.getPlacesToMoveTo()[kingRow][kingColumn]) {
+                return piece;
+            }
+        }
+        return null;
     }
 
     public Colour getColour() {

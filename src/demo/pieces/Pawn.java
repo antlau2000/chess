@@ -20,9 +20,28 @@ public class Pawn extends Piece {
     }
 
     @Override
-    public boolean canMove(Player player, Piece[][] board) {
+    public boolean canMove(Player player, Piece king, Piece[][] board) {
         placesToMoveTo = new boolean[8][8];
         boolean canMove = false;
+        boolean canMoveUp = true;
+        boolean canAttack = true;
+        if (isPinned(player, king, board)) {
+            if (king.getCurrentRow() - currentRow == 0) {
+                return false;
+            } else if (king.getCurrentColumn() - currentColumn != 0) {
+                canMoveUp = false;
+            } else {
+                if (colour == Colour.White) {
+                    if (king.getCurrentRow() - currentRow < 0) {
+                        canAttack = false;
+                    }
+                } else {
+                    if (king.getCurrentRow() - currentRow > 0) {
+                        canAttack = false;
+                    }
+                }
+            }
+        }
         int rowPlus = 1;
         if (colour != Colour.White) {
             rowPlus = -1;
@@ -33,21 +52,25 @@ public class Pawn extends Piece {
         int tempColumnToLeft = currentColumn - 1;
 
         if (tempRow >= 0 && tempRow <= 7 && board[tempRow][currentColumn] == null) {
-            placesToMoveTo[tempRow][currentColumn] = true;
-            canMove = true;
-            if (currentRow == rowStartPosition && board[tempSpecialRow][currentColumn] == null) {
-                placesToMoveTo[tempSpecialRow][currentColumn] = true;
+            if (canMoveUp) {
+                placesToMoveTo[tempRow][currentColumn] = true;
+                canMove = true;
+                if (currentRow == rowStartPosition && board[tempSpecialRow][currentColumn] == null) {
+                    placesToMoveTo[tempSpecialRow][currentColumn] = true;
+                }
             }
         }
-        if (tempColumnToRight <= 7 && board[tempRow][tempColumnToRight] != null
-                && board[tempRow][tempColumnToRight].getColour() != colour) {
-            placesToMoveTo[tempRow][tempColumnToRight] = true;
-            canMove = true;
-        }
-        if (tempColumnToLeft >= 0 && board[tempRow][tempColumnToLeft] != null
-                && board[tempRow][tempColumnToLeft].getColour() != colour) {
-            placesToMoveTo[tempRow][tempColumnToLeft] = true;
-            canMove = true;
+        if (canAttack) {
+            if (tempColumnToRight <= 7 && board[tempRow][tempColumnToRight] != null
+                    && board[tempRow][tempColumnToRight].getColour() != colour) {
+                placesToMoveTo[tempRow][tempColumnToRight] = true;
+                canMove = true;
+            }
+            if (tempColumnToLeft >= 0 && board[tempRow][tempColumnToLeft] != null
+                    && board[tempRow][tempColumnToLeft].getColour() != colour) {
+                placesToMoveTo[tempRow][tempColumnToLeft] = true;
+                canMove = true;
+            }
         }
         return canMove;
     }
@@ -78,12 +101,12 @@ public class Pawn extends Piece {
     }
 
     @Override
-    public boolean move(Player player, Piece[][] board, int row, int column) {
+    public boolean move(Player player, Player opponent, Piece[][] board, int row, int column) {
         if (placesToMoveTo[row][column]) {
             if (Math.abs(row - currentRow) == 2) {
                 isSpecialTurnUsed = true;
             }
-            movePiece(player, board, row, column);
+            movePiece(player, opponent, board, row, column);
             return true;
         }
         return false;

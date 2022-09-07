@@ -14,7 +14,7 @@ public class King extends Piece {
     }
 
     @Override
-    public boolean canMove(Player player, Piece[][] board) {
+    public boolean canMove(Player player, Piece king, Piece[][] board) {
         placesToMoveTo = new boolean[8][8];
         boolean canMove = false;
         int upRow = currentRow + 1;
@@ -67,6 +67,16 @@ public class King extends Piece {
             canMove = true;
         }
         return canMove;
+    }
+
+    @Override
+    public boolean canMoveWhileCheck(Player player, boolean[][] stopCheck, Piece[][] board) {
+        return canMove(player, this, board);
+    }
+
+    @Override
+    public boolean isPinned(Player player, Piece king, Piece[][] board) {
+        return false;
     }
 
     @Override

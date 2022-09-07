@@ -18,6 +18,7 @@ public class Game {
     static Player playerBlack;
     static List<Player> players = new ArrayList<>();
     static List<Piece> specialTurnPawns = new ArrayList<>();
+    static List<Piece> kings = new ArrayList<>();
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
@@ -25,8 +26,12 @@ public class Game {
         Piece currentPiece;
 
         System.out.println("0 for test without pawns:");
-        if (scanner.nextInt() == 0) {
+        System.out.println("1 for test with stalemate or checkmate");
+        int number = scanner.nextInt();
+        if (number == 0) {
             startGameWithoutPawns();
+        } else if (number == 1) {
+            startGameForStalemateOrCheckmate();
         } else {
             startGame();
         }
@@ -34,20 +39,83 @@ public class Game {
 //        startGame();
 
         Player currentPlayer = playerWhite;
+        Player opponent = playerBlack;
+        Player winner = null;
+        Piece attacker;
+        boolean[][] stopCheck;
+        Piece currentKing;
+        boolean stalemate;
         boolean[][] attackedPlaces;
+        Piece whiteKing = null;
+        Piece blackKing = null;
+        for (Piece king : kings) {
+            if (king.getColour() == White) {
+                whiteKing = king;
+            } else {
+                blackKing = king;
+            }
+        }
+        currentKing = whiteKing;
+        boolean check;
         while (true) {
+            check = false;
+            stalemate = true;
             view.print(players, board);
-            currentPiece = choosePiece(scanner, currentPlayer);
-            if (movePiece(scanner, currentPlayer, currentPiece)) {
+            if (currentPlayer.getAttackedPlaces()[currentKing.getCurrentRow()][currentKing.getCurrentColumn()]) {
+                check = true;
+                stalemate = false;
+            } else {
+                for (Piece piece : currentPlayer.getPieces()) {
+                    if (piece.canMove(currentPlayer, currentKing, board)) {
+                        stalemate = false;
+                        break;
+                    }
+                }
+                if (stalemate) {
+                    break;
+                }
+            }
+            if (check) {
+                boolean checkmate = true;
+                attacker = opponent.getAttacker(currentKing.getCurrentRow(), currentKing.getCurrentColumn());
+                stopCheck = getStopCheck(currentKing, attacker);
+                for (Piece piece : currentPlayer.getPieces()) {
+                    piece.canMove(currentPlayer, currentKing, board);
+                }
+                for (Piece piece : currentPlayer.getPieces()) {
+                    if (piece.canMoveWhileCheck(currentPlayer, stopCheck, board) && checkmate) {
+                        checkmate = false;
+                    }
+                }
+                if (checkmate) {
+                    winner = opponent;
+                    break;
+                }
+            }
+            currentPiece = choosePiece(scanner, currentPlayer, currentKing, check);
+            if (movePiece(scanner, currentPlayer, opponent, currentPiece)) {
                 currentPlayer.protectPieces(board);
-                attackedPlaces = currentPlayer.attackPlaces(board);
+                attackedPlaces = currentPlayer.attackPlaces(currentKing, board);
                 if (currentPlayer.getColour() == White) {
                     currentPlayer = playerBlack;
+                    currentKing = blackKing;
+                    opponent = playerWhite;
                 } else {
                     currentPlayer = playerWhite;
+                    currentKing = whiteKing;
+                    opponent = playerBlack;
                 }
                 currentPlayer.setAttackedPlaces(attackedPlaces);
             }
+        }
+        if (stalemate) {
+            System.out.println("!!! Stalemate !!!");
+            System.out.println();
+            System.out.println("There is no winner");
+        } else {
+            System.out.println("!!! Checkmate !!!");
+            System.out.println();
+            System.out.println("Winner is " + winner.getName());
         }
     }
 
@@ -62,6 +130,8 @@ public class Game {
                 playerBlack.getPieces().add(board[7 - i][j]);
             }
         }
+        kings.add(board[0][4]);
+        kings.add(board[7][4]);
         players.add(playerWhite);
         players.add(playerBlack);
     }
@@ -71,17 +141,40 @@ public class Game {
         boardNotation = initiateBoardNotation();
         playerWhite = new Player("Anthony", White);
         playerBlack = new Player("Mixa", Black);
-        for (int i = 0; i < 1; i++) {
-            for (int j = 0; j < 8; j++) {
-                playerWhite.getPieces().add(board[i][j]);
-                playerBlack.getPieces().add(board[7 - i][j]);
+        for (int j = 0; j < 8; j++) {
+            playerWhite.getPieces().add(board[0][j]);
+            playerBlack.getPieces().add(board[7][j]);
+        }
+        kings.add(board[0][4]);
+        kings.add(board[7][4]);
+        players.add(playerWhite);
+        players.add(playerBlack);
+    }
+
+    public static void startGameForStalemateOrCheckmate() {
+        board = initiateBoardForStalemateOrCheckMate();
+        boardNotation = initiateBoardNotation();
+        playerWhite = new Player("Anthony", White);
+        playerBlack = new Player("Mixa", Black);
+        for (Piece[] pieces : board) {
+            for (Piece piece : pieces) {
+                if (piece != null) {
+                    if (piece.getColour() == White) {
+                        playerWhite.getPieces().add(piece);
+                    } else {
+                        playerBlack.getPieces().add(piece);
+                    }
+                    if (piece instanceof King) {
+                        kings.add(piece);
+                    }
+                }
             }
         }
         players.add(playerWhite);
         players.add(playerBlack);
     }
 
-    public static Piece choosePiece(Scanner scanner, Player player) {
+    public static Piece choosePiece(Scanner scanner, Player player, Piece king, boolean check) {
         Piece currentPiece = null;
         while (true) {
             System.out.println(player.getName() + ", choose a piece to move:");
@@ -105,7 +198,25 @@ public class Game {
                 System.out.println("Wrong colour");
                 System.out.println("Try again!");
                 System.out.println();
-            } else if (!currentPiece.canMove(player, board)) {
+            } else if (check) {
+                boolean canMove = false;
+                for (boolean[] places : currentPiece.getPlacesToMoveTo()) {
+                    for (boolean placeToMoveTo : places) {
+                        if (placeToMoveTo) {
+                            canMove = true;
+                            break;
+                        }
+                    }
+                }
+                if (!canMove) {
+                    System.out.println("This chess piece can't move while you're in check");
+                    System.out.println("Try again!");
+                    System.out.println();
+                } else {
+                    System.out.println();
+                    break;
+                }
+            } else if (!currentPiece.canMove(player, king, board)) {
                 System.out.println("This chess piece can't move");
                 System.out.println("Try again!");
                 System.out.println();
@@ -117,7 +228,7 @@ public class Game {
         return currentPiece;
     }
 
-    public static boolean movePiece(Scanner scanner, Player currentPlayer, Piece currentPiece) {
+    public static boolean movePiece(Scanner scanner, Player currentPlayer, Player opponent, Piece currentPiece) {
         boolean isSpecialTurnUsed = false;
         while (true) {
             System.out.println(currentPlayer.getName() + ", choose a destination for your " + currentPiece.getName() + ":");
@@ -139,7 +250,7 @@ public class Game {
                 System.out.println();
             } else {
                 int distanceRow = Math.abs(row - currentPiece.getCurrentRow());
-                if (currentPiece.move(currentPlayer, board, row, column)) {
+                if (currentPiece.move(currentPlayer, opponent, board, row, column)) {
                     if (currentPiece instanceof Pawn) {
                         int endRow;
                         if (currentPiece.getColour() == White) {
@@ -205,6 +316,24 @@ public class Game {
         return board;
     }
 
+    public static boolean[][] getStopCheck(Piece king, Piece attacker) {
+        boolean[][] stopCheck = new boolean[8][8];
+        stopCheck[attacker.getCurrentRow()][attacker.getCurrentColumn()] = true;
+        if (attacker instanceof Knight || attacker instanceof Pawn) {
+            return stopCheck;
+        }
+        int distanceRowNotAbs = king.getCurrentRow() - attacker.getCurrentRow();
+        int distanceColumnNotAbs = king.getCurrentColumn() - attacker.getCurrentColumn();
+        int rowIncrease = Integer.compare(distanceRowNotAbs, 0);
+        int columnIncrease = Integer.compare(distanceColumnNotAbs, 0);
+        int tempRow = king.getCurrentRow() + rowIncrease;
+        int tempColumn = king.getCurrentColumn() + columnIncrease;
+        while (tempRow != attacker.getCurrentRow() && tempColumn != attacker.getCurrentColumn()) {
+            stopCheck[tempRow][tempColumn] = true;
+        }
+        return stopCheck;
+    }
+
     public static Piece[][] initiateBoardWithoutPawns() {
         Board boardEntity = new Board();
         Piece[][] board = boardEntity.getArray();
@@ -227,6 +356,21 @@ public class Game {
             board[7][5] = new Bishop(Black, 7, 5);
             board[7][6] = new Knight(Black, 7, 6);
             board[7][7] = new Rook(Black, 7, 7);
+        }
+        return board;
+    }
+
+    public static Piece[][] initiateBoardForStalemateOrCheckMate() {
+        Board boardEntity = new Board();
+        Piece[][] board = boardEntity.getArray();
+        {
+            board[0][4] = new King(White, 0, 4);
+            board[6][0] = new Rook(White, 6, 0);
+            board[6][5] = new Queen(White, 6, 5);
+        }
+        {
+            board[7][7] = new King(Black, 7, 7);
+            board[1][7] = new Rook(Black, 1, 7);
         }
         return board;
     }

@@ -15,12 +15,22 @@ public class Rook extends Piece {
     }
 
     @Override
-    public boolean canMove(Player player, Piece[][] board) {
+    public boolean canMove(Player player, Piece king, Piece[][] board) {
         placesToMoveTo = new boolean[8][8];
-        placesToMoveTo = checkPlaces(player, board, 1, 0, placesToMoveTo, true);
-        placesToMoveTo = checkPlaces(player, board, -1, 0, placesToMoveTo, true);
-        placesToMoveTo = checkPlaces(player, board, 0, 1, placesToMoveTo, true);
-        placesToMoveTo = checkPlaces(player, board, 0, -1, placesToMoveTo, true);
+        if (isPinned(player, king, board)) {
+            if (king.currentRow - currentRow == 0) {
+                placesToMoveTo = checkPlaces(player, board, 0, 1, placesToMoveTo, true);
+                placesToMoveTo = checkPlaces(player, board, 0, -1, placesToMoveTo, true);
+            } else {
+                placesToMoveTo = checkPlaces(player, board, 1, 0, placesToMoveTo, true);
+                placesToMoveTo = checkPlaces(player, board, -1, 0, placesToMoveTo, true);
+            }
+        } else {
+            placesToMoveTo = checkPlaces(player, board, 1, 0, placesToMoveTo, true);
+            placesToMoveTo = checkPlaces(player, board, -1, 0, placesToMoveTo, true);
+            placesToMoveTo = checkPlaces(player, board, 0, 1, placesToMoveTo, true);
+            placesToMoveTo = checkPlaces(player, board, 0, -1, placesToMoveTo, true);
+        }
         for (boolean[] places : placesToMoveTo) {
             for (boolean place : places) {
                 if (place) {

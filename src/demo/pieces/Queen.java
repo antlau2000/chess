@@ -15,16 +15,34 @@ public class Queen extends Piece {
     }
 
     @Override
-    public boolean canMove(Player player, Piece[][] board) {
+    public boolean canMove(Player player, Piece king, Piece[][] board) {
         placesToMoveTo = new boolean[8][8];
-        placesToMoveTo = checkPlaces(player, board, 1, 1, placesToMoveTo, true);
-        placesToMoveTo = checkPlaces(player, board, -1, 1, placesToMoveTo, true);
-        placesToMoveTo = checkPlaces(player, board, 1, -1, placesToMoveTo, true);
-        placesToMoveTo = checkPlaces(player, board, -1, -1, placesToMoveTo, true);
-        placesToMoveTo = checkPlaces(player, board, 1, 0, placesToMoveTo, true);
-        placesToMoveTo = checkPlaces(player, board, -1, 0, placesToMoveTo, true);
-        placesToMoveTo = checkPlaces(player, board, 0, 1, placesToMoveTo, true);
-        placesToMoveTo = checkPlaces(player, board, 0, -1, placesToMoveTo, true);
+        if (isPinned(player, king, board)) {
+            int rowDistanceNotAbs = king.currentRow - currentRow;
+            int columnDistanceNotAbs = king.currentColumn - currentColumn;
+            if (rowDistanceNotAbs == 0) {
+                placesToMoveTo = checkPlaces(player, board, 0, 1, placesToMoveTo, true);
+                placesToMoveTo = checkPlaces(player, board, 0, -1, placesToMoveTo, true);
+            } else if (columnDistanceNotAbs == 0) {
+                placesToMoveTo = checkPlaces(player, board, 1, 0, placesToMoveTo, true);
+                placesToMoveTo = checkPlaces(player, board, -1, 0, placesToMoveTo, true);
+            } else if (rowDistanceNotAbs == columnDistanceNotAbs) {
+                placesToMoveTo = checkPlaces(player, board, 1, 1, placesToMoveTo, true);
+                placesToMoveTo = checkPlaces(player, board, -1, -1, placesToMoveTo, true);
+            } else {
+                placesToMoveTo = checkPlaces(player, board, -1, 1, placesToMoveTo, true);
+                placesToMoveTo = checkPlaces(player, board, 1, -1, placesToMoveTo, true);
+            }
+        } else {
+            placesToMoveTo = checkPlaces(player, board, 1, 1, placesToMoveTo, true);
+            placesToMoveTo = checkPlaces(player, board, -1, 1, placesToMoveTo, true);
+            placesToMoveTo = checkPlaces(player, board, 1, -1, placesToMoveTo, true);
+            placesToMoveTo = checkPlaces(player, board, -1, -1, placesToMoveTo, true);
+            placesToMoveTo = checkPlaces(player, board, 1, 0, placesToMoveTo, true);
+            placesToMoveTo = checkPlaces(player, board, -1, 0, placesToMoveTo, true);
+            placesToMoveTo = checkPlaces(player, board, 0, 1, placesToMoveTo, true);
+            placesToMoveTo = checkPlaces(player, board, 0, -1, placesToMoveTo, true);
+        }
         for (boolean[] places : placesToMoveTo) {
             for (boolean place : places) {
                 if (place) {

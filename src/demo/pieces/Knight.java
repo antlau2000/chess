@@ -15,16 +15,20 @@ public class Knight extends Piece {
     }
 
     @Override
-    public boolean canMove(Player player, Piece[][] board) {
+    public boolean canMove(Player player, Piece king, Piece[][] board) {
         placesToMoveTo = new boolean[8][8];
-        placesToMoveTo = checkPlaces(player, board, 1, 2, placesToMoveTo, false);
-        placesToMoveTo = checkPlaces(player, board, 1, -2, placesToMoveTo, false);
-        placesToMoveTo = checkPlaces(player, board, -1, 2, placesToMoveTo, false);
-        placesToMoveTo = checkPlaces(player, board, -1, -2, placesToMoveTo, false);
-        placesToMoveTo = checkPlaces(player, board, 2, 1, placesToMoveTo, false);
-        placesToMoveTo = checkPlaces(player, board, 2, -1, placesToMoveTo, false);
-        placesToMoveTo = checkPlaces(player, board, -2, 1, placesToMoveTo, false);
-        placesToMoveTo = checkPlaces(player, board, -2, -1, placesToMoveTo, false);
+        if (isPinned(player, king, board)) {
+            return false;
+        } else {
+            placesToMoveTo = checkPlaces(player, board, 1, 2, placesToMoveTo, false);
+            placesToMoveTo = checkPlaces(player, board, 1, -2, placesToMoveTo, false);
+            placesToMoveTo = checkPlaces(player, board, -1, 2, placesToMoveTo, false);
+            placesToMoveTo = checkPlaces(player, board, -1, -2, placesToMoveTo, false);
+            placesToMoveTo = checkPlaces(player, board, 2, 1, placesToMoveTo, false);
+            placesToMoveTo = checkPlaces(player, board, 2, -1, placesToMoveTo, false);
+            placesToMoveTo = checkPlaces(player, board, -2, 1, placesToMoveTo, false);
+            placesToMoveTo = checkPlaces(player, board, -2, -1, placesToMoveTo, false);
+        }
         for (boolean[] places : placesToMoveTo) {
             for (boolean place : places) {
                 if (place) {

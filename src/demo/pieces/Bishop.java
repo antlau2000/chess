@@ -15,8 +15,17 @@ public class Bishop extends Piece {
     }
 
     @Override
-    public boolean canMove(Player player, Piece[][] board) {
+    public boolean canMove(Player player, Piece king, Piece[][] board) {
         placesToMoveTo = new boolean[8][8];
+        if (isPinned(player, king, board)) {
+            if (king.currentRow - currentRow == king.currentColumn - currentColumn) {
+                placesToMoveTo = checkPlaces(player, board, 1, 1, placesToMoveTo, true);
+                placesToMoveTo = checkPlaces(player, board, -1, -1, placesToMoveTo, true);
+            } else {
+                placesToMoveTo = checkPlaces(player, board, -1, 1, placesToMoveTo, true);
+                placesToMoveTo = checkPlaces(player, board, 1, -1, placesToMoveTo, true);
+            }
+        }
         placesToMoveTo = checkPlaces(player, board, 1, 1, placesToMoveTo, true);
         placesToMoveTo = checkPlaces(player, board, -1, 1, placesToMoveTo, true);
         placesToMoveTo = checkPlaces(player, board, 1, -1, placesToMoveTo, true);
